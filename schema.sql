@@ -1,3 +1,4 @@
+
 -- Create the predictions table
 CREATE TABLE predictions (
     prediction_id SERIAL PRIMARY KEY,  -- Auto-incrementing primary key
