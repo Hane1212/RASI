@@ -11,6 +11,10 @@ from airflow.models import Variable
 INPUT_FOLDER = "data/input_data"
 FILE_PREFIX = "test_" 
 VARIABLE_NAME = "last_processed_file"
+expected_columns = [
+    "Temperature", "Humidity", "PM2.5", "PM10", "NO2", "SO2", "CO",
+    "Proximity_to_Industrial_Areas", "Population_Density", "Air Quality"
+]
 
 @dag(
     dag_id='ingest_data',
@@ -51,23 +55,99 @@ def ingest_data():
         if not filepath:
             logging.info("No file to process this run.")
             return None
-
-        nb_rows = 5
         input_data_df = pd.read_csv(filepath)
-        logging.info(f'Extract {nb_rows} rows from the file {filepath}')
-        data_to_ingest_df = input_data_df.sample(n=nb_rows)
-        return data_to_ingest_df
+        logging.info(f'Extract data from the file {filepath}')
+        return input_data_df
+    
+    @task
+    def verify_csv_file(data_to_ingest_df: pd.DataFrame):
+        if data_to_ingest_df is None:
+            return False
+        
+        verification_checks = [
+        verify_missing_column,
+        verify_missing_values,
+        verify_air_quality_value,
+        verify_humidity_value,
+        verify_PM10_value,
+        verify_SO2_value
+            ]
+
+        results = {func.__name__: func(data_to_ingest_df) for func in verification_checks}
+
+        # Log failed checks
+        failed_checks = [name for name, result in results.items() if not result]
+        if failed_checks:
+            logging.error(f"CSV file failed the following checks: {failed_checks}")
+            return False
+
+        logging.info("CSV file passed all checks ✅")
+        return True
 
     @task
-    def save_data(data_to_ingest_df: pd.DataFrame) -> None:
-        filepath = f'data/output_data/good_data/{datetime.now().strftime("%Y-%M-%d_%H-%M-%S")}.csv'
-        logging.info(f'Ingesting data to the file: {filepath}')
+    def save_data(data_to_ingest_df: pd.DataFrame, result: bool) -> None:
+        if data_to_ingest_df is None:
+            logging.info("No data to save.")
+            return
+        folder = "good_data" if result else "bad_data"
+        filepath = f'data/output_data/{folder}/{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.csv'
+        logging.info(f'Saving data to {filepath}')
         data_to_ingest_df.to_csv(filepath, index=False)
+        
 
     # Task relationships
     file_path = get_next_file()
     data_to_ingest = get_data_to_ingest_from_local_file(file_path)
-    save_data(data_to_ingest)
-
+    result = verify_csv_file(data_to_ingest)
+    save_data(data_to_ingest, result)
 
 ingest_data_dag = ingest_data()
+
+# 1. A required feature (column) is missing
+def verify_missing_column(data_to_ingest_df: pd.DataFrame) -> bool:
+    actual_columns = list(data_to_ingest_df.columns)
+    return set(actual_columns) == set(expected_columns)
+
+    
+# 2. Missing values in a required column
+def verify_missing_values(data_to_ingest_df: pd.DataFrame)-> bool:
+    return not data_to_ingest_df[expected_columns].isnull().any().any()
+
+# 3. Unknown values for a given feature (expected Air Quality values: Moderate, Good, Hazardous, Poor)
+def verify_air_quality_value(df: pd.DataFrame) -> bool:
+    allowed_values = {"Moderate", "Good", "Hazardous", "Poor"} 
+    col = "Air Quality"
+    invalid_values = df[~df[col].isin(allowed_values)][col].unique()
+    if len(invalid_values) == 0:
+        return True
+    else:
+        return False
+    
+# 4.1. Wrong value of Humidity, range value of Humidity from 0 -> 100%
+def verify_humidity_value(df: pd.DataFrame) -> bool:
+    col = 'Humidity'
+    if (df[col]<=100).all():
+        return True
+    else:
+        return False
+    
+# 4.2. Wrong value of SO2, range value of SO2 from 0 -> 1000  
+def verify_SO2_value(df: pd.DataFrame) -> bool:
+    col = 'SO2'
+    if (df[col]>0).all():
+        return True
+    else:
+        return False  
+    
+# 4.3. Wrong value of PM10, range value of PM10 from 0 -> 1000
+def verify_PM10_value(df: pd.DataFrame) -> bool:
+    col = 'PM10'
+    if (df[col]>0).all():
+        return True
+    else:
+        return False  
+# 5. A string value in a numerical column
+#  
+
+# if __name__ == "__main__":
+#     ingest_data_dag.test()
