@@ -6,12 +6,13 @@ in_csv = 'data/input_data/sample_test.csv'
 #get the number of lines of the csv file to be read
 number_lines = sum(1 for row in (open(in_csv)))
 # Read the header (first row) separately
-df_header = pd.read_csv(in_csv, nrows=1)
+df_header = pd.read_csv(in_csv, nrows=0)
 header = df_header.columns.tolist()  
+print(header)
 
 rowsize = 10
 #start looping through data writing it to a new file for each set
-for i in range(0,number_lines,rowsize):
+for i in range(1,number_lines,rowsize):
 
     df = pd.read_csv(in_csv,
           nrows = rowsize,#number of rows to read at each loop
