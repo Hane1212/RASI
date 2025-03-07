@@ -13,7 +13,7 @@ FILE_PREFIX = "test_"
 VARIABLE_NAME = "last_processed_file"
 expected_columns = [
     "Temperature", "Humidity", "PM2.5", "PM10", "NO2", "SO2", "CO",
-    "Proximity_to_Industrial_Areas", "Population_Density", "Air Quality"
+    "Proximity_to_Industrial_Areas", "Population_Density"
 ]
 
 @dag(
@@ -67,7 +67,6 @@ def ingest_data():
         verification_checks = [
         verify_missing_column,
         verify_missing_values,
-        verify_air_quality_value,
         verify_humidity_value,
         verify_PM10_value,
         verify_SO2_value
@@ -112,16 +111,6 @@ def verify_missing_column(data_to_ingest_df: pd.DataFrame) -> bool:
 # 2. Missing values in a required column
 def verify_missing_values(data_to_ingest_df: pd.DataFrame)-> bool:
     return not data_to_ingest_df[expected_columns].isnull().any().any()
-
-# 3. Unknown values for a given feature (expected Air Quality values: Moderate, Good, Hazardous, Poor)
-def verify_air_quality_value(df: pd.DataFrame) -> bool:
-    allowed_values = {"Moderate", "Good", "Hazardous", "Poor"} 
-    col = "Air Quality"
-    invalid_values = df[~df[col].isin(allowed_values)][col].unique()
-    if len(invalid_values) == 0:
-        return True
-    else:
-        return False
     
 # 4.1. Wrong value of Humidity, range value of Humidity from 0 -> 100%
 def verify_humidity_value(df: pd.DataFrame) -> bool:
