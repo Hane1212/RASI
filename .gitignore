@@ -4,7 +4,9 @@ airflow/logs/
 airflow/webserver_config.py
 venv/
 data/input_data
+data/output_data
 .idea
+dags/data_ingestion.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
