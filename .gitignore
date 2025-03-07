@@ -4,6 +4,8 @@ airflow/logs/
 airflow/webserver_config.py
 venv/
 data/input_data
+data/output_data
+
 .idea
 
 # Byte-compiled / optimized / DLL files
