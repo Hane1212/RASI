@@ -4,7 +4,6 @@ airflow/logs/
 airflow/webserver_config.py
 venv/
 data/output_data
-data/raw_data
 .idea
 dags/data_ingestion.py
 
