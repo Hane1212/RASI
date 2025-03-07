@@ -20,3 +20,4 @@ __pycache__/
 .Python
 build/
 develop-eggs/.DS_Store
+.DS_Store
