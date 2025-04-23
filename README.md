@@ -1,12 +1,10 @@
 # **Air Quality Index Analysis and Prediction System 🌍💨**
 
 ## **Team Members 👥**
-- Revanth Puvaneswaren 
-- Imthias Abubakkar
-- Huang Ta
-- Sravana Sakthidharan
-- Anu Neduvely Ashokan
-
+- Huong TA
+-
+-
+-
 ---
 
 ## **Project Overview 📋**
@@ -179,5 +177,5 @@ Feel free to report any bugs or propose new features via the **Issues** tab.
 
 ## **Contact Information 📧**
 For questions, feedback, or support, reach out to us at:  
-imthias-abubakkar.jamaludeen@epita.fr  
+huong.ta@epita.fr  
 
