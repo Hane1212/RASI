@@ -117,7 +117,7 @@ The Air Quality Index dataset includes:
 
 ### **1. Clone the Repository 🛠️**
 ```bash
-git clone https://github.com/imthias-abu/RASI.git
+git clone https://github.com/Hane1212/RASI.git
 cd [project directory]
 ```
 
