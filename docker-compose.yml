@@ -32,6 +32,7 @@ services:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - AIRFLOW__WEBSERVER__SECRET_KEY=mysecret
+      - PYTHONPATH=/opt/airflow
     volumes:
       - ./create_admin_user.sh:/create_admin_user.sh  # Mount the script
       # - /Users/hane/Kiwi/Epita/S2/DSP/projet/RASI:/opt/airflow/dags
@@ -52,6 +53,7 @@ services:
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - AIRFLOW__WEBSERVER__SECRET_KEY=mysecret
       - AIRFLOW__CORE__DAGS_FOLDER=/opt/airflow/dags
+      - PYTHONPATH=/opt/airflow
     volumes:
       # - /Users/hane/Kiwi/Epita/S2/DSP/projet/RASI:/opt/airflow/dags  # Ensure DAGs folder is mounted
       - ./dags:/opt/airflow/dags 
